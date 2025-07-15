@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 export default function Home() {
+  // Force redeploy - test page
   const sections = [
     {
       name: 'Packages',
