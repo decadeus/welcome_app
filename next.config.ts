@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    logging: {
-      fetches: {
-        fullUrl: true,
-      },
-    },
-  },
+  // Configuration standard pour Vercel
 };
 
 export default nextConfig;
