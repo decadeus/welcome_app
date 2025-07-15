@@ -10,7 +10,8 @@
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
     "setup": "cp env.example .env.local && echo '✅ Fichier .env.local créé. Configurez vos variables Supabase.'",
-    "test:supabase": "echo '🧪 Testez Supabase sur: http://localhost:3000/test-supabase'"
+    "test:supabase": "echo '🧪 Testez Supabase sur: http://localhost:3000/test-supabase'",
+    "init-db": "node scripts/init-database.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",
