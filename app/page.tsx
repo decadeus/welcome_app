@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export default function Home() {
-  // Force redeploy - test page
+  // Force redeploy with correct Next.js framework settings
   const sections = [
     {
       name: 'Packages',
