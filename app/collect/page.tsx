@@ -389,12 +389,10 @@ export default function CollectPage() {
     const ZONES = [
       'Collectes exceptionnelles / Infos spéciales 1',
       'Collectes exceptionnelles / Infos spéciales 2',
-      'Collectes exceptionnelles / Infos spéciales 3',
     ];
-    const [values, setValues] = React.useState(['', '', '']);
+    const [values, setValues] = React.useState(['', '']);
     const [loading, setLoading] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
-    const editorsRef = [React.useRef<HTMLDivElement>(null), React.useRef<HTMLDivElement>(null), React.useRef<HTMLDivElement>(null)];
     const MAX_LENGTH = 300;
 
     // Charger depuis Supabase au montage
@@ -403,41 +401,16 @@ export default function CollectPage() {
         setLoading(true);
         const { data, error } = await supabase
           .from('infos_speciales')
-          .select('zone1, zone2, zone3')
+          .select('zone1, zone2')
           .limit(1)
           .single();
         if (data) {
-          setValues([data.zone1 || '', data.zone2 || '', data.zone3 || '']);
-          // Met à jour le DOM natif pour chaque éditeur
-          editorsRef.forEach((ref, i) => {
-            if (ref.current) ref.current.innerHTML = (data as any)[`zone${i+1}`] || '';
-          });
+          setValues([data.zone1 || '', data.zone2 || '']);
         }
         setLoading(false);
       };
       fetchData();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // Commande de formatage
-    const format = (cmd: 'bold' | 'italic' | 'underline', idx: number) => {
-      document.execCommand(cmd, false, undefined);
-      editorsRef[idx].current?.focus();
-    };
-
-    // Gestion de la saisie et limitation
-    const handleInput = (e: React.FormEvent<HTMLDivElement>, idx: number) => {
-      let html = e.currentTarget.innerHTML;
-      if (html.length > MAX_LENGTH) {
-        html = html.slice(0, MAX_LENGTH);
-        e.currentTarget.innerHTML = html;
-      }
-      setValues(vals => {
-        const newVals = [...vals];
-        newVals[idx] = html;
-        return newVals;
-      });
-    };
 
     // Sauvegarde dans Supabase
     const handleSave = async () => {
@@ -445,7 +418,7 @@ export default function CollectPage() {
       setSuccess(false);
       const { error } = await supabase
         .from('infos_speciales')
-        .update({ zone1: values[0], zone2: values[1], zone3: values[2], updated_at: new Date().toISOString() })
+        .update({ zone1: values[0], zone2: values[1], updated_at: new Date().toISOString() })
         .eq('id', 1);
       setLoading(false);
       if (!error) {
@@ -456,42 +429,31 @@ export default function CollectPage() {
       }
     };
 
+    // Gestion de la saisie et limitation
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>, idx: number) => {
+      let val = e.target.value;
+      if (val.length > MAX_LENGTH) {
+        val = val.slice(0, MAX_LENGTH);
+      }
+      setValues(vals => {
+        const newVals = [...vals];
+        newVals[idx] = val;
+        return newVals;
+      });
+    };
+
     return (
       <div className="mt-8 flex flex-col gap-6">
         {ZONES.map((label, idx) => (
           <div key={idx} className="bg-white shadow rounded-lg p-6 flex flex-col">
             <h3 className="text-lg font-semibold mb-2">{label}</h3>
-            <div className="mb-2 flex gap-2">
-              <button
-                type="button"
-                className="px-2 py-1 border rounded hover:bg-gray-100 font-bold"
-                onClick={() => format('bold', idx)}
-              >
-                B
-              </button>
-              <button
-                type="button"
-                className="px-2 py-1 border rounded hover:bg-gray-100 italic"
-                onClick={() => format('italic', idx)}
-              >
-                I
-              </button>
-              <button
-                type="button"
-                className="px-2 py-1 border rounded hover:bg-gray-100 underline"
-                onClick={() => format('underline', idx)}
-              >
-                U
-              </button>
-            </div>
-            <div
-              ref={editorsRef[idx]}
-              contentEditable
-              suppressContentEditableWarning
+            <textarea
               className="w-full min-h-[80px] border border-gray-300 rounded p-2 text-sm focus:outline-none flex-1"
-              style={{ whiteSpace: 'pre-wrap' }}
-              onInput={e => handleInput(e, idx)}
-            ></div>
+              maxLength={MAX_LENGTH}
+              value={values[idx]}
+              onChange={e => handleChange(e, idx)}
+              placeholder="Saisissez ici vos informations spéciales..."
+            />
             <div className="text-right text-xs text-gray-500 mt-1">
               {values[idx].length}/{MAX_LENGTH} caractères
             </div>
