@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function PackagesPage() {
-  const [packages, setPackages] = useState<string[]>([]);
+  const [packages, setPackages] = useState<{ value: string; date: string }[]>([]);
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const MAX_LENGTH = 5;
@@ -26,7 +26,9 @@ export default function PackagesPage() {
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim() !== '') {
-      setPackages([inputValue.trim(), ...packages]);
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('fr-FR'); // format JJ/MM/AAAA
+      setPackages([{ value: inputValue.trim(), date: dateStr }, ...packages]);
       setShowInput(false);
       setInputValue('');
     } else if (e.key === 'Escape') {
@@ -88,8 +90,9 @@ export default function PackagesPage() {
               {/* Carrés packages */}
               {packages.map((pkg, idx) => (
                 <div key={idx} className="relative flex flex-col items-center">
-                  <div className="w-20 h-20 bg-blue-100 border-2 border-blue-400 rounded-lg flex items-center justify-center text-2xl font-bold text-blue-800">
-                    {pkg}
+                  <div className="w-20 h-20 bg-blue-100 border-2 border-blue-400 rounded-lg flex flex-col items-center justify-center text-2xl font-bold text-blue-800">
+                    <span>{pkg.value}</span>
+                    <span className="text-xs text-blue-600 font-normal mt-1">{pkg.date}</span>
                   </div>
                   <button
                     onClick={() => handleDelete(idx)}
